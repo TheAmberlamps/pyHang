@@ -1,6 +1,16 @@
 import random
 import string
 import json
+import platform
+import os
+
+def clrScr():
+    if platform.system() == "Windows":
+        os.system('cls')
+    else:
+        os.system('clear')
+
+clrScr()
 
 file_path = 'word_list.txt'
 
@@ -23,8 +33,10 @@ def hangMan():
     alphabet = set(string.ascii_uppercase)
     # get valid word
     word = get_valid_word(myList)
-    # store as string for literal comparison, removing the tailing newline character
-    wordString = word.upper()[:-1]
+    # store as string for literal comparison, breaking it apart via whitespaces and removing the tailing newline character
+    #wordString = word.upper()[:-1]
+    wordString = ' '.join((word.upper()[:-1]))
+    # the below seems repetitive and dumb since I already have the word and am splitting it apart... maybe take a minute to examine this
     # spread word into a list
     word = list(word)
     # remove newline character from end of list
@@ -39,40 +51,58 @@ def hangMan():
     showTing = ''
     #print(f"wordLets: {word}")
     length = ""
+
+    lives = 6
     for let in word:
         length += '-'
     print(length)
-    while wordString != showTing:
-        #if len(letters) > 0:
-            #print("Successfull guesses: ", " ".join(letters))
+    while wordString != showTing and lives > 0:
         # list guessed letters that do not exist in the word
         if len(failLetters) > 0:
             print("Unsuccessful guesses: ", " ".join(failLetters) + "\n")
-        # user prompt that gets guess in uper case
+        # user prompt that gets guess in upper case
         user_letter = input("Guess a letter: ").upper()
         #print(word)
         # makes sure that guess is a single character and that it exists in the alphabet
-        if len(user_letter) == 1 and user_letter in alphabet:
+        if user_letter in alphabet:
             # adds guess to list of valid letters if it exists in the word but if it already exists as a valid guess
             if user_letter in word and user_letter not in letters:
                 letters.append(user_letter)
                 #wordLets.remove(user_letter)
             # adds guess to list of letters not in word unless it already exists as a failed guess
             elif user_letter not in failLetters and user_letter not in letters:
-                failLetters.append(user_letter)
-                print("Sorry, try again\n")
+                lives = lives -1
+                if lives < 1 :
+                    print(f"Game over! The word was {wordString}")
+                    return
+                else:
+                    failLetters.append(user_letter)
+                    print("Sorry, try again\n")
         # alerts user that their input is invalid
         else:
-            print("Invalid input; guess a single letter\n")
+            print("Invalid input, try again.\n")
+        # this is the commented-out implementation that I created, which works fine. Beneath it is the version used by the person that wrote the tutorial I followed. They both have value.
+
         # initializes an empty string for display to user and as the ultimate comparative value
-        showTing = ''
         # builds string
-        for user_letter in word:
-            if user_letter in letters:
-                showTing += user_letter
-            else:
-                showTing += "-"
-        print(showTing + "\n")
+        #showTing = ''
+        #for user_letter in word:
+            #if user_letter in letters:
+                #showTing += user_letter
+            #else:
+                #showTing += "-"
+
+        # so to explain, this is creating a conditional list based on whether any given letter in the word has been guessed or not, then splits that list apart with whitespaces.
+        showTing = ' '.join([letter if letter in letters else '-' for letter in word])
+
+        #print(wordString)
+        if lives < 1 :
+            print(f"Game over! The word was {wordString}")
+            return
+        
+        print(f'Lives left: {lives}\n')
+        print(showTing)
+    print("Congratulations! You win!")
 
 hangMan()
 # crazy, Python includes hidden characters to its strings... they really aren't kidding when they talk about how much more strict this language is in comparison to javascript
