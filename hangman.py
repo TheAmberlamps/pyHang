@@ -2,28 +2,34 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 print("loading")
 
 chrome_options = Options()
-
 chrome_options.add_argument("--headless=new")
-
-driver= webdriver.Chrome(options=chrome_options)
-
+driver = webdriver.Chrome(options=chrome_options)
 url = 'https://www.randomlists.com/random-words?qty=1&dup=false'
-
 driver.get(url)
 
-#print(f"url title: {driver.title}")
+try:
+    element = WebDriverWait(driver, 5).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "base_title__Yd1Gv"))
+    )
+    found_word = driver.find_element(By.CLASS_NAME, "base_title__Yd1Gv").text.upper()
+    print("Word found")
 
-found_word = driver.find_element(By.CLASS_NAME, "base_title__Yd1Gv").text.upper()
+except:
+    print("Element not found within timeout period")
+
+#print(f"url title: {driver.title}")
 
 #print(f"found word: {found_word}")
 
 driver.quit()
 
-#import random
+import random
 import string
 import platform
 import os
